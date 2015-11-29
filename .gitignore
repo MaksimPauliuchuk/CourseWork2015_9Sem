@@ -1,0 +1,21 @@
+!.gitignore
+/FindPathApp/**/.project
+/FindPathApp/**/.settings
+/FindPathApp/**/.classpath
+/FindPathApp/**/.checkstyle
+/FindPathApp/**/target
+**/.project
+**/.settings
+**/.idea/
+**/.idea
+**/*.*~
+**/*.jar
+**/*.class
+**/*.log
+**/target/
+**/*.iml
+
+# Package Files #
+*.jar
+*.war
+*.ear

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.findpath</groupId>
+	<artifactId>FindPathApp</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>FindPathWeb</module>
+		<module>FindPathServices</module>
+		<module>FindPathServiceInterfaces</module>
+		<module>FindPathEar</module>
+	</modules>
+
+	<distributionManagement>
+		<site>
+			<id>${project.artifactId}</id>
+			<name>${project.name}</name>
+			<url>${project.baseUri}</url>
+		</site>
+	</distributionManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>ServiceInterfaces</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>Services</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.sun.faces</groupId>
+				<artifactId>jsf-api</artifactId>
+				<version>2.1.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.faces</groupId>
+				<artifactId>jsf-impl</artifactId>
+				<version>2.1.7</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>1.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.sun.el</groupId>
+				<artifactId>el-ri</artifactId>
+				<version>1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.primefaces</groupId>
+				<artifactId>primefaces</artifactId>
+				<version>5.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.primefaces.extensions</groupId>
+				<artifactId>primefaces-extensions</artifactId>
+				<version>4.0.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+						<debug>true</debug>
+						<optimize>true</optimize>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-ear-plugin</artifactId>
+					<version>2.9</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5</version>
+					<dependencies>
+						<!-- Workaround for http://jira.codehaus.org/browse/SCM-740 -->
+						<!-- Before running maven-release-plugin you need compile and use the 
+							latest maven-scm-provider-gitexe commits until v1.10 is released -->
+						<!-- git clone https://git-wip-us.apache.org/repos/asf/maven-scm.git/ -->
+						<!-- cd maven-scm -->
+						<!-- mvn install -DskipTests -->
+						<!-- Ignore failures during maven-scm-provider-gitexe build -->
+						<!-- You need to run install only once, aim is to have 1.10-SNAPSHOT 
+							in the local m2 repo during release process -->
+						<dependency>
+							<groupId>org.apache.maven.scm</groupId>
+							<artifactId>maven-scm-provider-gitexe</artifactId>
+							<version>1.10-SNAPSHOT</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+						<preparationGoals>clean install</preparationGoals>
+						<pushChanges>false</pushChanges> <!--Release Plugin don't push to remote -->
+						<localCheckout>true</localCheckout> <!--Release Plugin clone from local repo -->
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+
+
+	</build>
+
+</project>
