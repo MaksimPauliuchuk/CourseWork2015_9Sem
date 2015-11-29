@@ -29,13 +29,19 @@
 		<dependencies>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
-				<artifactId>ServiceInterfaces</artifactId>
+				<artifactId>FindPathServices</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>${project.groupId}</groupId>
-				<artifactId>Services</artifactId>
+				<artifactId>FindPathServiceInterfaces</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>FindPathWeb</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

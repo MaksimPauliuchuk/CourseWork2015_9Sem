@@ -6,10 +6,18 @@
 		<artifactId>FindPathApp</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-  <artifactId>FindPathWeb</artifactId>
+	<artifactId>FindPathWeb</artifactId>
 	<packaging>war</packaging>
 
 	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>FindPathServiceInterfaces</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>FindPathServices</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
