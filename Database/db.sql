@@ -156,7 +156,7 @@ END $$
 
 CREATE PROCEDURE `find_path`.`get_buses_routes` ()
 BEGIN
-	SELECT fk_buses_id, stops FROM bus_routes;
+	SELECT id, stops, fk_buses_id FROM bus_routes;
 END $$
 
 DELIMITER ;
