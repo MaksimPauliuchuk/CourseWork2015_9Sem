@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.findpath.interfaces.model.Bus;
 import com.findpath.interfaces.model.BusesRoute;
@@ -20,9 +19,9 @@ import com.findpath.interfaces.model.TraficStop;
  * 
  * @author Максим
  */
-public class DAOBusesRoutes
+public final class DAOBusesRoutes
 {
-    DAOBusesRoutes()
+    private DAOBusesRoutes()
     {
     }
 
@@ -32,15 +31,15 @@ public class DAOBusesRoutes
      * @param anId id
      * @return TraficStop
      */
-    public final static TraficStop getTraficStopById(final int anId)
+    public static TraficStop getTraficStopById(final int anId)
     {
+        //System.out.println("getTraficStopById " + anId);
         TraficStop traficStop = null;
 
         String sql = "CALL `find_path`.`get_stop_by_id`(?)";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getTraficStopById " + anId);
             statement.setInt(1, anId);
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
@@ -55,15 +54,20 @@ public class DAOBusesRoutes
         return traficStop;
     }
 
-    public final static List<TraficStop> getTraficStops()
+    /**
+     * Get list of TraficStop.
+     * 
+     * @return list of TraficStop
+     */
+    public static List<TraficStop> getTraficStops()
     {
+        //System.out.println("getTraficStops");
         List<TraficStop> traficStops = new ArrayList<TraficStop>();
 
         String sql = "CALL `find_path`.`get_stops`()";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getTraficStops");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next())
             {
@@ -78,15 +82,21 @@ public class DAOBusesRoutes
         return traficStops;
     }
 
-    public final static Route getRouteById(final int anId)
+    /**
+     * Get route by id.
+     * 
+     * @param anId id route.
+     * @return Route
+     */
+    public static Route getRouteById(final int anId)
     {
+        //System.out.println("getRouteById " + anId);
         Route route = null;
 
         String sql = "CALL `find_path`.`get_rout_by_id`(?)";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getRouteById " + anId);
             statement.setInt(1, anId);
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
@@ -101,15 +111,20 @@ public class DAOBusesRoutes
         return route;
     }
 
-    public final static List<Route> getRoutes()
+    /**
+     * Get Routes.
+     * 
+     * @return List of Route.
+     */
+    public static List<Route> getRoutes()
     {
+        //System.out.println("getRoutes");
         List<Route> routes = new ArrayList<Route>();
 
         String sql = "CALL `find_path`.`get_routes`()";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getRoutes");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next())
             {
@@ -124,15 +139,21 @@ public class DAOBusesRoutes
         return routes;
     }
 
-    public final static Bus getBusById(final int anId)
+    /**
+     * Get Bus by id.
+     * 
+     * @param anId bus id
+     * @return Bus
+     */
+    public static Bus getBusById(final int anId)
     {
+        //System.out.println("getBusById " + anId);
         Bus bus = null;
 
         String sql = "CALL `find_path`.`get_bus_by_id`(?)";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getBusById " + anId);
             statement.setInt(1, anId);
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
@@ -148,15 +169,20 @@ public class DAOBusesRoutes
         return bus;
     }
 
-    public final static List<Bus> getBuses()
+    /**
+     * Get List of Buses.
+     * 
+     * @return List of Buses.
+     */
+    public static List<Bus> getBuses()
     {
+        //System.out.println("getBuses");
         List<Bus> buses = new ArrayList<Bus>();
 
         String sql = "CALL `find_path`.`get_buses`()";
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getBuses");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next())
             {
@@ -171,11 +197,17 @@ public class DAOBusesRoutes
         return buses;
     }
 
-    public final static List<BusesRoute> getBusesRoutes()
+    /**
+     * Get List of BusesRoute.
+     * 
+     * @return list of BusesRoute
+     */
+    public static List<BusesRoute> getBusesRoutes()
     {
+        //System.out.println("getBusesRoutes");
         List<BusesRoute> busesRoutes = new ArrayList<BusesRoute>();
         List<TraficStop> traficStops = getTraficStops();
-        Map<Integer,String> traficStopsMap = new HashMap<Integer, String>();
+        Map<Integer, String> traficStopsMap = new HashMap<Integer, String>();
 
         for (TraficStop traficStop : traficStops)
         {
@@ -186,7 +218,6 @@ public class DAOBusesRoutes
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
-            System.out.println("getBusesRoutes");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next())
             {
@@ -211,4 +242,48 @@ public class DAOBusesRoutes
         return busesRoutes;
     }
 
+    /**
+     * Get BusesRoute by Bus id.
+     * 
+     * @param anId Bus id
+     * @return BusesRoute
+     */
+    public static BusesRoute getBusesRouteByBusId(final int anId)
+    {
+        //System.out.println("getBusesRouteByBusId");
+        BusesRoute busesRoute = null;
+        List<TraficStop> traficStops = getTraficStops();
+        Map<Integer, String> traficStopsMap = new HashMap<Integer, String>();
+
+        for (TraficStop traficStop : traficStops)
+        {
+            traficStopsMap.put(traficStop.getItsId(), traficStop.getItsName());
+        }
+
+        String sql = "CALL `find_path`.`get_buses_route_by_bus_id`(?)";
+        try (Connection connection = MySQLConnector.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            statement.setInt(1, anId);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            List<TraficStop> routeTraficStops = new ArrayList<TraficStop>();
+            routeTraficStops.clear();
+            String stops = resultSet.getString(2);
+            String[] massStop = stops.split(";");
+            for (int i = 0; i < massStop.length; i++)
+            {
+                int id = Integer.parseInt(massStop[i]);
+                TraficStop traficStop = new TraficStop(id, traficStopsMap.get(id));
+                routeTraficStops.add(traficStop);
+            }
+            busesRoute = new BusesRoute(resultSet.getInt(1), routeTraficStops, anId);
+        }
+        catch (SQLException e)
+        {
+            System.out.println("SQL error in getBusesRouteByBusId");
+            e.printStackTrace();
+        }
+        return busesRoute;
+    }
 }
