@@ -1,5 +1,9 @@
 package com.findpath.interfaces.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Transfer object.
  * 
@@ -15,6 +19,8 @@ public class Transfer
     private String itsNameTo;
     private String itsNameBus;
     private String itsNameRoute;
+    private Calendar itsTimeFrom;
+    private Calendar itsTimeTo;
 
     /**
      * Create transfer.
@@ -31,6 +37,7 @@ public class Transfer
     public Transfer(final int aFrom, final int aTo, final int aBus, final int anIdRoute, final String aNameFrom,
             final String aNameTo, final String aNameBus, final String aNameRoute)
     {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss");
         setItsIdFrom(aFrom);
         setItsIdTo(aTo);
         setItsIdBus(aBus);
@@ -39,6 +46,18 @@ public class Transfer
         setItsNameTo(aNameTo);
         setItsNameBus(aNameBus);
         setItsNameRoute(aNameRoute);
+        try
+        {
+            setItsTimeFrom(Calendar.getInstance());
+            getItsTimeFrom().setTime(sdf.parse("1970:01:01:00:00:00"));
+            setItsTimeTo(Calendar.getInstance());
+            getItsTimeTo().setTime(sdf.parse("1970:01:01:00:00:00"));
+        }
+        catch (ParseException e)
+        {
+            System.out.println("Error in Transfer constructor on converte date");
+            e.printStackTrace();
+        }
     }
 
     public final int getItsIdFrom()
@@ -119,5 +138,25 @@ public class Transfer
     public final void setItsNameRoute(final String aNameRoute)
     {
         this.itsNameRoute = aNameRoute;
+    }
+
+    public final Calendar getItsTimeFrom()
+    {
+        return itsTimeFrom;
+    }
+
+    public final void setItsTimeFrom(final Calendar aTimeFrom)
+    {
+        this.itsTimeFrom = aTimeFrom;
+    }
+
+    public final Calendar getItsTimeTo()
+    {
+        return itsTimeTo;
+    }
+
+    public final void setItsTimeTo(final Calendar aTimeTo)
+    {
+        this.itsTimeTo = aTimeTo;
     }
 }
