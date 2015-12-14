@@ -1,21 +1,21 @@
 package com.findpath.web;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-
-import org.omg.CORBA.TRANSACTION_MODE;
 
 import com.findpath.interfaces.model.Bus;
 import com.findpath.interfaces.model.BusesRoute;
@@ -29,18 +29,29 @@ import com.findpath.services.dao.DAOBusesRoutes;
  * 
  * @author Максим
  */
-@ManagedBean(name = "indexB")
+@ApplicationScoped
+@ManagedBean(name = "indexB", eager = true)
 public class IndexBean
 {
+    private final long itsMaxTime = 1800000;
+
     private List<List<Set<Integer>>> itsStopsMatrix;
     private Map<Integer, TraficStop> itsTraficStop;
     private Map<Integer, Bus> itsBuses;
     private Map<Integer, Route> itsRoutes;
+    private List<TraficStop> itsTraficStops;
 
-    private String itsTest;
+    private String itsStopFrom;
+    private String itsStopTo;
+    private Calendar itsCalendar;
+
+    private List<Transfer> itsWithoutTransfer;
+    private List<List<Transfer>> itsWithOneTransfer;
 
     /**
      * Default.
+     * 
+     * @throws IOException ex
      */
     public IndexBean() throws IOException
     {
@@ -48,44 +59,88 @@ public class IndexBean
         generateMapOfTrafficstop();
         generateMapOfBuses();
         generateMapOfRoutes();
-        setItsTest("asd");
+        setItsWithoutTransfer(new ArrayList<Transfer>());
+        setItsWithOneTransfer(new ArrayList<List<Transfer>>());
+        getItsWithOneTransfer().add(new ArrayList<Transfer>());
 
-        for (Transfer transfer : fidnPathWithoutTransfer(1, 23))
-        {
-            System.out.println(transfer.getItsNameFrom() + " " + transfer.getItsNameTo() + " "
-                    + transfer.getItsNameBus() + " " + transfer.getItsNameRoute());
-        }
+        itsCalendar = new GregorianCalendar();
 
-        for (List<Transfer> list : findPathWithOneTransfer(1, 23))
+        for (List<Transfer> list : findPathWithOneTransfer(1, 326, itsCalendar))
         {
             for (Transfer transfer : list)
             {
+                System.out.println(transfer.getItsTimeFrom().getTime() + " " + transfer.getItsTimeTo().getTime());
                 System.out.println(transfer.getItsNameFrom() + " " + transfer.getItsNameTo() + " "
                         + transfer.getItsNameBus() + " " + transfer.getItsNameRoute());
             }
             System.out.println();
         }
-
-        for (List<Transfer> list : findPathWithTwoTransfer(1, 23))
-        {
-            for (Transfer transfer : list)
-            {
-                System.out.println(
-                        transfer.getItsIdBus() + " " + transfer.getItsNameFrom() + " " + transfer.getItsNameTo() + " "
-                                + transfer.getItsNameBus() + " " + transfer.getItsNameRoute());
-            }
-            System.out.println();
-        }
+        /*
+         * for (List<Transfer> list : findPathWithTwoTransfer(1, 326, itsCalendar)) { for (Transfer transfer : list) {
+         * System.out.println(transfer.getItsTimeFrom().getTime() + " " + transfer.getItsTimeTo().getTime());
+         * System.out.println( transfer.getItsIdBus() + " " + transfer.getItsNameFrom() + " " + transfer.getItsNameTo()
+         * + " " + transfer.getItsNameBus() + " " + transfer.getItsNameRoute()); } System.out.println(); }
+         */
     }
 
-    public final String getItsTest()
+    public final List<TraficStop> getItsTraficStops()
     {
-        return itsTest;
+        return itsTraficStops;
     }
 
-    public final void setItsTest(final String aTest)
+    public final void setItsTraficStops(final List<TraficStop> aTraficStops)
     {
-        this.itsTest = aTest;
+        this.itsTraficStops = aTraficStops;
+    }
+
+    public final String getItsStopFrom()
+    {
+        return itsStopFrom;
+    }
+
+    public final void setItsStopFrom(final String aStopFrom)
+    {
+        this.itsStopFrom = aStopFrom;
+    }
+
+    public final String getItsStopTo()
+    {
+        return itsStopTo;
+    }
+
+    public final void setItsStopTo(final String aStopTo)
+    {
+        this.itsStopTo = aStopTo;
+    }
+
+    public final Calendar getItsCalendar()
+    {
+        return itsCalendar;
+    }
+
+    public final void setItsCalendar(final Calendar aCalendar)
+    {
+        this.itsCalendar = aCalendar;
+    }
+
+    public final List<Transfer> getItsWithoutTransfer()
+    {
+        return itsWithoutTransfer;
+    }
+
+    public final void setItsWithoutTransfer(final List<Transfer> aWithoutTransfer)
+    {
+        this.itsWithoutTransfer = aWithoutTransfer;
+    }
+
+    public final List<List<Transfer>> getItsWithOneTransfer()
+    {
+        return itsWithOneTransfer;
+    }
+
+    public final void setItsWithOneTransfer(final List<List<Transfer>> aWithOneTransfer)
+    {
+        this.itsWithOneTransfer = aWithOneTransfer;
     }
 
     /**
@@ -172,9 +227,10 @@ public class IndexBean
      * 
      * @param aFrom stop id from
      * @param aTo stop id to
+     * @param aCalendar start time
      * @return list of transfer
      */
-    public final List<Transfer> fidnPathWithoutTransfer(final int aFrom, final int aTo)
+    public final List<Transfer> fidnPathWithoutTransfer(final int aFrom, final int aTo, final Calendar aCalendar)
     {
         ArrayList<Transfer> transfers = new ArrayList<Transfer>();
         if (itsStopsMatrix.get(aFrom).get(aTo).size() > 0)
@@ -185,8 +241,41 @@ public class IndexBean
             {
                 Bus bus = itsBuses.get(aBusRoute);
                 Route route = itsRoutes.get(bus.getItsRouteId());
-                transfers.add(new Transfer(aFrom, aTo, aBusRoute, route.getItsId(), from.getItsName(),
-                        to.getItsName(), bus.getItsName(), route.getItsName()));
+                Transfer transfer = new Transfer(aFrom, aTo, aBusRoute, route.getItsId(), from.getItsName(),
+                        to.getItsName(), bus.getItsName(), route.getItsName());
+                Map<Integer, Calendar> map =
+                        DAOBusesRoutes.getTravelsByBusAndStop(transfer.getItsIdBus(), transfer.getItsIdFrom());
+                int travel = 0;
+                for (Entry<Integer, Calendar> list : map.entrySet())
+                {
+                    if (list.getValue().get(aCalendar.HOUR_OF_DAY) * 100
+                            + list.getValue().get(aCalendar.MINUTE) > aCalendar.get(aCalendar.HOUR_OF_DAY) * 100
+                                    + aCalendar.get(aCalendar.MINUTE))
+                    {
+                        travel = list.getKey();
+                        transfer.setItsTimeFrom(list.getValue());
+                        break;
+                    }
+                }
+                if (travel != 0)
+                {
+                    transfer.setItsTimeTo(DAOBusesRoutes.getTimeFromBusOnStop(transfer.getItsIdBus(),
+                            transfer.getItsIdTo(), travel));
+                    transfers.add(transfer);
+                }
+            }
+        }
+        int i = 0, size = transfers.size();
+        while (i < size)
+        {
+            if (transfers.get(i).getItsTimeFrom().get(Calendar.HOUR) == 0)
+            {
+                transfers.remove(i);
+                size--;
+            }
+            else
+            {
+                i++;
             }
         }
         return transfers;
@@ -197,28 +286,32 @@ public class IndexBean
      * 
      * @param aFrom stop id from
      * @param aTo stop id to
+     * @param aCalendar start time
      * @return list of list of transfer
      */
-    public final List<List<Transfer>> findPathWithOneTransfer(final int aFrom, final int aTo)
+    public final List<List<Transfer>> findPathWithOneTransfer(final int aFrom, final int aTo,
+            final Calendar aCalendar)
     {
         List<List<Transfer>> lists = new ArrayList<List<Transfer>>();
         for (int i = 0; i < itsStopsMatrix.get(aFrom).size(); i++)
         {
             if (aFrom != i)
             {
-                List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i);
+                List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i, aCalendar);
                 List<Transfer> transfers;
                 if (itsStopsMatrix.get(aFrom).get(i).size() > 0)
                 {
-                    transfers = fidnPathWithoutTransfer(i, aTo);
-                    if (transfers.size() > 0)
+                    for (Transfer tran : trans)
                     {
-                        for (Transfer tran : trans)
+                        transfers = fidnPathWithoutTransfer(i, aTo, tran.getItsTimeTo());
+                        if (transfers.size() > 0)
                         {
                             for (Transfer transfer : transfers)
                             {
                                 if (!(tran.getItsIdBus() == transfer.getItsIdBus()
-                                        || tran.getItsNameBus().equals(transfer.getItsNameBus())))
+                                        || tran.getItsNameBus().equals(transfer.getItsNameBus()))
+                                        && (transfer.getItsTimeFrom().getTimeInMillis()
+                                                - tran.getItsTimeTo().getTimeInMillis()) < itsMaxTime)
                                 {
                                     List<Transfer> list = new ArrayList<Transfer>();
                                     list.add(tran);
@@ -239,37 +332,43 @@ public class IndexBean
      * 
      * @param aFrom stop id from
      * @param aTo stop id to
+     * @param aCalendar start time
      * @return list of list of transfer
      */
-    public final List<List<Transfer>> findPathWithTwoTransfer(final int aFrom, final int aTo)
+    public final List<List<Transfer>> findPathWithTwoTransfer(final int aFrom, final int aTo,
+            final Calendar aCalendar)
     {
         List<List<Transfer>> lists = new ArrayList<List<Transfer>>();
         for (int i = 0; i < itsStopsMatrix.get(aFrom).size(); i++)
         {
-            List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i);
+            List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i, aCalendar);
             List<List<Transfer>> transfers;
             if (itsStopsMatrix.get(aFrom).get(i).size() > 0)
             {
-                transfers = findPathWithOneTransfer(i, aTo);
-                if (transfers.size() > 0)
+                for (Transfer tran : trans)
                 {
-                    for (Transfer tran : trans)
+                    transfers = findPathWithOneTransfer(i, aTo, tran.getItsTimeTo());
+                    if (transfers.size() > 0)
                     {
                         for (List<Transfer> transfer : transfers)
                         {
-                            List<Transfer> list = new ArrayList<Transfer>();
-                            list.add(tran);
-                            for (Transfer transfer2 : transfer)
+                            if (transfer.get(0).getItsTimeFrom().getTimeInMillis()
+                                    - tran.getItsTimeTo().getTimeInMillis() < itsMaxTime)
                             {
-                                if (!(transfer2.getItsIdBus() == tran.getItsIdBus()
-                                        || transfer2.getItsNameBus().equals(tran.getItsNameBus())))
+                                List<Transfer> list = new ArrayList<Transfer>();
+                                list.add(tran);
+                                for (Transfer transfer2 : transfer)
                                 {
-                                    list.add(transfer2);
+                                    if (!(transfer2.getItsIdBus() == tran.getItsIdBus()
+                                            || transfer2.getItsNameBus().equals(tran.getItsNameBus())))
+                                    {
+                                        list.add(transfer2);
+                                    }
                                 }
-                            }
-                            if (list.size() == 3)
-                            {
-                                lists.add(list);
+                                if (list.size() == 3)
+                                {
+                                    lists.add(list);
+                                }
                             }
                         }
                     }
@@ -286,35 +385,40 @@ public class IndexBean
      * @param aTo stop id to
      * @return list of list of transfer
      */
-    public final List<List<Transfer>> findPathWithThreeTransfer(final int aFrom, final int aTo)
+    public final List<List<Transfer>> findPathWithThreeTransfer(final int aFrom, final int aTo,
+            final Calendar aCalendar)
     {
         List<List<Transfer>> lists = new ArrayList<List<Transfer>>();
         for (int i = 0; i < itsStopsMatrix.get(aFrom).size(); i++)
         {
-            List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i);
+            List<Transfer> trans = fidnPathWithoutTransfer(aFrom, i, aCalendar);
             List<List<Transfer>> transfers;
             if (itsStopsMatrix.get(aFrom).get(i).size() > 0)
             {
-                transfers = findPathWithTwoTransfer(i, aTo);
-                if (transfers.size() > 0)
+                for (Transfer tran : trans)
                 {
-                    for (Transfer tran : trans)
+                    transfers = findPathWithTwoTransfer(i, aTo, tran.getItsTimeTo());
+                    if (transfers.size() > 0)
                     {
                         for (List<Transfer> transfer : transfers)
                         {
-                            List<Transfer> list = new ArrayList<Transfer>();
-                            list.add(tran);
-                            for (Transfer transfer2 : transfer)
+                            if (transfer.get(0).getItsTimeFrom().getTimeInMillis()
+                                    - tran.getItsTimeTo().getTimeInMillis() < itsMaxTime)
                             {
-                                if (!(transfer2.getItsIdBus() == tran.getItsIdBus()
-                                        || transfer2.getItsNameBus().equals(tran.getItsNameBus())))
+                                List<Transfer> list = new ArrayList<Transfer>();
+                                list.add(tran);
+                                for (Transfer transfer2 : transfer)
                                 {
-                                    list.add(transfer2);
+                                    if (!(transfer2.getItsIdBus() == tran.getItsIdBus()
+                                            || transfer2.getItsNameBus().equals(tran.getItsNameBus())))
+                                    {
+                                        list.add(transfer2);
+                                    }
                                 }
-                            }
-                            if (list.size() == 4)
-                            {
-                                lists.add(list);
+                                if (list.size() == 4)
+                                {
+                                    lists.add(list);
+                                }
                             }
                         }
                     }
@@ -322,5 +426,26 @@ public class IndexBean
             }
         }
         return lists;
+    }
+
+    public final void findPath()
+    {
+        List<Integer> listFrom = DAOBusesRoutes.getStopsByName(getItsStopFrom());
+        List<Integer> listTo = DAOBusesRoutes.getStopsByName(getItsStopTo());
+
+        getItsWithoutTransfer().clear();
+        getItsWithOneTransfer().clear();
+
+        for (Integer from : listFrom)
+        {
+            for (Integer to : listTo)
+            {
+                List<Transfer> withoutTransferTemp = fidnPathWithoutTransfer(from, to, itsCalendar);
+                getItsWithoutTransfer().addAll(withoutTransferTemp);
+
+                List<List<Transfer>> withOneTransfer = findPathWithOneTransfer(from, to, itsCalendar);
+                getItsWithOneTransfer().addAll(withOneTransfer);
+            }
+        }
     }
 }

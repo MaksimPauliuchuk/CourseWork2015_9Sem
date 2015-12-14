@@ -3,12 +3,93 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
-	<h:head>
-		<title>Start</title>
-	</h:head>
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Start</title>
+</h:head>
 <h:body>
-	<h:outputText value="Hello"></h:outputText>
-	<h:outputLabel value="#{indexB.itsTest}" />
+	<h:form>
+		<p:outputPanel style="text-align:center">
+			<p:panelGrid columns="2" style="margin-left:auto; margin-right:auto">
+				<f:facet name="header">
+					<p:outputLabel value="Выберите остановку" />
+				</f:facet>
+				<p:outputLabel value="Откуда" />
+				<p:inputText value="#{indexB.itsStopFrom}" />
+				<p:outputLabel value="Куда" />
+				<p:inputText value="#{indexB.itsStopTo}" />
+				<p:outputLabel value="Время" />
+				<p:calendar id="time" value="#{indexB.itsCalendar.time}"
+					pattern="HH:mm" timeOnly="true" />
+			</p:panelGrid>
+			<p:commandButton value="Найти" actionListener="#{indexB.findPath()}"
+				update="without,withone" />
+		</p:outputPanel>
+		<br />
+		
+		<p:dataTable id="without" var="transfer"
+			value="#{indexB.itsWithoutTransfer}" style="text-align:center"
+			emptyMessage="Путей не найдено">
+			<f:facet name="header">
+				<p:outputLabel value="Без пересадок" />
+			</f:facet>
+			<p:column width="10%" headerText="Автобус">
+				<p:outputLabel value="#{transfer.itsNameBus}" />
+			</p:column>
+			<p:column headerText="Направление">
+				<p:outputLabel value="#{transfer.itsNameRoute}" />
+			</p:column>
+			<p:column headerText="Откуда">
+				<p:outputLabel value="#{transfer.itsNameFrom}" />
+			</p:column>
+			<p:column headerText="Куда">
+				<p:outputLabel value="#{transfer.itsNameTo}" />
+			</p:column>
+			<p:column headerText="Начало">
+				<p:calendar value="#{transfer.itsTimeFrom.time}" pattern="HH:mm"
+					timeOnly="true" size="2" />
+			</p:column>
+			<p:column headerText="Конец">
+				<p:calendar value="#{transfer.itsTimeTo.time}" pattern="HH:mm"
+					timeOnly="true" size="2" />
+			</p:column>
+		</p:dataTable>
+		<br />
+
+		<p:dataTable id="withone" var="transfers"
+			value="#{indexB.itsWithOneTransfer}" style="text-align:center"
+			emptyMessage="Путей не найдено">
+			<f:facet name="header">
+				<p:outputLabel value="С одной пересадкой" />
+			</f:facet>
+			<p:column>
+				<p:dataTable var="transfer" value="#{transfers}"
+					style="text-align:center" emptyMessage="Путей не найдено">
+					<p:column width="10%" headerText="Автобус">
+						<p:outputLabel value="#{transfer.itsNameBus}" />
+					</p:column>
+					<p:column headerText="Направление">
+						<p:outputLabel value="#{transfer.itsNameRoute}" />
+					</p:column>
+					<p:column headerText="Откуда">
+						<p:outputLabel value="#{transfer.itsNameFrom}" />
+					</p:column>
+					<p:column headerText="Куда">
+						<p:outputLabel value="#{transfer.itsNameTo}" />
+					</p:column>
+					<p:column headerText="Начало">
+						<p:calendar value="#{transfer.itsTimeFrom.time}" pattern="HH:mm"
+							timeOnly="true" size="2" />
+					</p:column>
+					<p:column headerText="Конец">
+						<p:calendar value="#{transfer.itsTimeTo.time}" pattern="HH:mm"
+							timeOnly="true" size="2" />
+					</p:column>
+				</p:dataTable>
+			</p:column>
+		</p:dataTable>
+	</h:form>
 </h:body>
 </html>
