@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,7 @@ public final class DAOBusesRoutes
      */
     public static TraficStop getTraficStopById(final int anId)
     {
-        //System.out.println("getTraficStopById " + anId);
+        // System.out.println("getTraficStopById " + anId);
         TraficStop traficStop = null;
 
         String sql = "CALL `find_path`.`get_stop_by_id`(?)";
@@ -61,7 +63,7 @@ public final class DAOBusesRoutes
      */
     public static List<TraficStop> getTraficStops()
     {
-        //System.out.println("getTraficStops");
+        // System.out.println("getTraficStops");
         List<TraficStop> traficStops = new ArrayList<TraficStop>();
 
         String sql = "CALL `find_path`.`get_stops`()";
@@ -90,7 +92,7 @@ public final class DAOBusesRoutes
      */
     public static Route getRouteById(final int anId)
     {
-        //System.out.println("getRouteById " + anId);
+        // System.out.println("getRouteById " + anId);
         Route route = null;
 
         String sql = "CALL `find_path`.`get_rout_by_id`(?)";
@@ -118,7 +120,7 @@ public final class DAOBusesRoutes
      */
     public static List<Route> getRoutes()
     {
-        //System.out.println("getRoutes");
+        // System.out.println("getRoutes");
         List<Route> routes = new ArrayList<Route>();
 
         String sql = "CALL `find_path`.`get_routes`()";
@@ -147,7 +149,7 @@ public final class DAOBusesRoutes
      */
     public static Bus getBusById(final int anId)
     {
-        //System.out.println("getBusById " + anId);
+        // System.out.println("getBusById " + anId);
         Bus bus = null;
 
         String sql = "CALL `find_path`.`get_bus_by_id`(?)";
@@ -176,7 +178,7 @@ public final class DAOBusesRoutes
      */
     public static List<Bus> getBuses()
     {
-        //System.out.println("getBuses");
+        // System.out.println("getBuses");
         List<Bus> buses = new ArrayList<Bus>();
 
         String sql = "CALL `find_path`.`get_buses`()";
@@ -204,7 +206,7 @@ public final class DAOBusesRoutes
      */
     public static List<BusesRoute> getBusesRoutes()
     {
-        //System.out.println("getBusesRoutes");
+        // System.out.println("getBusesRoutes");
         List<BusesRoute> busesRoutes = new ArrayList<BusesRoute>();
         List<TraficStop> traficStops = getTraficStops();
         Map<Integer, String> traficStopsMap = new HashMap<Integer, String>();
@@ -250,7 +252,7 @@ public final class DAOBusesRoutes
      */
     public static BusesRoute getBusesRouteByBusId(final int anId)
     {
-        //System.out.println("getBusesRouteByBusId");
+        // System.out.println("getBusesRouteByBusId");
         BusesRoute busesRoute = null;
         List<TraficStop> traficStops = getTraficStops();
         Map<Integer, String> traficStopsMap = new HashMap<Integer, String>();
@@ -285,5 +287,102 @@ public final class DAOBusesRoutes
             e.printStackTrace();
         }
         return busesRoute;
+    }
+
+    /**
+     * Get map of travels (Travel, Time).
+     * 
+     * @param aBusId bus id
+     * @param aStopId stop id
+     * @return map of travels (Travel, Time)
+     */
+    public static Map<Integer, Calendar> getTravelsByBusAndStop(final int aBusId, final int aStopId)
+    {
+        Map<Integer, Calendar> map = new HashMap<Integer, Calendar>();
+
+        String sql = "CALL `find_path`.`get_travels_by_bus_and_stop`(?,?)";
+
+        try (Connection connection = MySQLConnector.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            statement.setInt(1, aBusId);
+            statement.setInt(2, aStopId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next())
+            {
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(resultSet.getTime(2));
+                map.put(resultSet.getInt(1), calendar);
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("SQL error in getTravelsByBusAndStop");
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
+    /**
+     * Get time, when bus go to stop on concrete travel.
+     * 
+     * @param aBusId bus id
+     * @param aStopId stop id
+     * @param aTravelId travel id
+     * @return time, when bus go to stop on travel.
+     */
+    public static Calendar getTimeFromBusOnStop(final int aBusId, final int aStopId, final int aTravelId)
+    {
+        Calendar calendar = new GregorianCalendar();
+        String sql = "CALL `find_path`.`get_time_from_bus_on_stop`(?,?,?)";
+
+        try (Connection connection = MySQLConnector.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            statement.setInt(1, aBusId);
+            statement.setInt(2, aStopId);
+            statement.setInt(3, aTravelId);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            calendar.setTime(resultSet.getTime(1));
+        }
+        catch (SQLException e)
+        {
+            System.out.println("SQL error in getTimeFromBusOnStop");
+            e.printStackTrace();
+        }
+        return calendar;
+    }
+
+    /**
+     * Get stop number.
+     * 
+     * @param aStopName stop name
+     * @return list of stop id
+     */
+    public static List<Integer> getStopsByName(final String aStopName)
+    {
+        List<Integer> list = new ArrayList<Integer>();
+        String sql = "CALL `find_path`.`get_stops_by_name`(?)";
+        
+        try (Connection connection = MySQLConnector.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            statement.setString(1, aStopName);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next())
+            {
+                list.add(resultSet.getInt(1));
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("SQL error in getStopsByName");
+            e.printStackTrace();
+        }
+        
+        return list;
     }
 }
