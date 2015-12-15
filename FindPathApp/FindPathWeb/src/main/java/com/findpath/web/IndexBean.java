@@ -250,7 +250,8 @@ public class IndexBean
                 {
                     if (list.getValue().get(aCalendar.HOUR_OF_DAY) * 100
                             + list.getValue().get(aCalendar.MINUTE) > aCalendar.get(aCalendar.HOUR_OF_DAY) * 100
-                                    + aCalendar.get(aCalendar.MINUTE))
+                                    + aCalendar.get(aCalendar.MINUTE)
+                            && list.getValue().get(aCalendar.HOUR_OF_DAY) != 0)
                     {
                         travel = list.getKey();
                         transfer.setItsTimeFrom(list.getValue());
