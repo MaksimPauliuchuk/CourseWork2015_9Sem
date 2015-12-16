@@ -366,7 +366,7 @@ public final class DAOBusesRoutes
     {
         List<Integer> list = new ArrayList<Integer>();
         String sql = "CALL `find_path`.`get_stops_by_name`(?)";
-        
+
         try (Connection connection = MySQLConnector.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql))
         {
@@ -382,7 +382,35 @@ public final class DAOBusesRoutes
             System.out.println("SQL error in getStopsByName");
             e.printStackTrace();
         }
-        
+
+        return list;
+    }
+
+    /**
+     * Get list string of name stops.
+     * 
+     * @return list of name stops
+     */
+    public static List<String> getNameStops()
+    {
+        List<String> list = new ArrayList<String>();
+        String sql = "CALL `find_path`.`get_name_stops`()";
+
+        try (Connection connection = MySQLConnector.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql))
+        {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next())
+            {
+                list.add(resultSet.getString(1));
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("SQL error in getNameStops");
+            e.printStackTrace();
+        }
+
         return list;
     }
 }

@@ -40,6 +40,7 @@ public class IndexBean
     private Map<Integer, Bus> itsBuses;
     private Map<Integer, Route> itsRoutes;
     private List<TraficStop> itsTraficStops;
+    private List<String> itsNameStops;
 
     private String itsStopFrom;
     private String itsStopTo;
@@ -62,19 +63,10 @@ public class IndexBean
         setItsWithoutTransfer(new ArrayList<Transfer>());
         setItsWithOneTransfer(new ArrayList<List<Transfer>>());
         getItsWithOneTransfer().add(new ArrayList<Transfer>());
+        itsNameStops = DAOBusesRoutes.getNameStops();
 
         itsCalendar = new GregorianCalendar();
 
-        for (List<Transfer> list : findPathWithOneTransfer(1, 326, itsCalendar))
-        {
-            for (Transfer transfer : list)
-            {
-                System.out.println(transfer.getItsTimeFrom().getTime() + " " + transfer.getItsTimeTo().getTime());
-                System.out.println(transfer.getItsNameFrom() + " " + transfer.getItsNameTo() + " "
-                        + transfer.getItsNameBus() + " " + transfer.getItsNameRoute());
-            }
-            System.out.println();
-        }
         /*
          * for (List<Transfer> list : findPathWithTwoTransfer(1, 326, itsCalendar)) { for (Transfer transfer : list) {
          * System.out.println(transfer.getItsTimeFrom().getTime() + " " + transfer.getItsTimeTo().getTime());
@@ -91,6 +83,16 @@ public class IndexBean
     public final void setItsTraficStops(final List<TraficStop> aTraficStops)
     {
         this.itsTraficStops = aTraficStops;
+    }
+
+    public final List<String> getItsNameStops()
+    {
+        return itsNameStops;
+    }
+
+    public final void setItsNameStops(final List<String> aNameStops)
+    {
+        this.itsNameStops = aNameStops;
     }
 
     public final String getItsStopFrom()
@@ -448,5 +450,20 @@ public class IndexBean
                 getItsWithOneTransfer().addAll(withOneTransfer);
             }
         }
+    }
+
+    public final List<String> completeStop(final String aQuery)
+    {
+        List<String> filtredName = new ArrayList<String>();
+
+        for (String string : getItsNameStops())
+        {
+            if (string.toLowerCase().startsWith(aQuery.toLowerCase()))
+            {
+                filtredName.add(string);
+            }
+        }
+
+        return filtredName;
     }
 }

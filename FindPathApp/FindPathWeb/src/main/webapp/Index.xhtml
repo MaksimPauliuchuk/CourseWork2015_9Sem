@@ -17,9 +17,11 @@
 					<p:outputLabel value="Выберите остановку" />
 				</f:facet>
 				<p:outputLabel value="Откуда" />
-				<p:inputText value="#{indexB.itsStopFrom}" />
+				<p:autoComplete value="#{indexB.itsStopFrom}"
+					completeMethod="#{indexB.completeStop}" />
 				<p:outputLabel value="Куда" />
-				<p:inputText value="#{indexB.itsStopTo}" />
+				<p:autoComplete value="#{indexB.itsStopTo}"
+					completeMethod="#{indexB.completeStop}" />
 				<p:outputLabel value="Время" />
 				<p:calendar id="time" value="#{indexB.itsCalendar.time}"
 					pattern="HH:mm" timeOnly="true" />
@@ -28,7 +30,7 @@
 				update="without,withone" />
 		</p:outputPanel>
 		<br />
-		
+
 		<p:dataTable id="without" var="transfer"
 			value="#{indexB.itsWithoutTransfer}" style="text-align:center"
 			emptyMessage="Путей не найдено">
