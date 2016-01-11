@@ -4,6 +4,7 @@
 /FindPathApp/**/.classpath
 /FindPathApp/**/.checkstyle
 /FindPathApp/**/target
+/ConvertBus
 **/.project
 **/.settings
 **/.idea/
